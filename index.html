@@ -3,38 +3,42 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-<title>Controlador de Motorista — Uber / 99</title>
-<meta name="description" content="Controle privado de motorista de aplicativo. Custos, lucro, metas, histórico — salvo apenas no navegador." />
+<title>Controlador de Motorista — Uber</title>
+<meta name="description" content="Controle privado de motorista Uber. Lucro semanal, mensal, custos fixos e reserva de emergência." />
 <link rel="manifest" href="manifest.json">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=DM+Serif+Display&display=swap');
 
-:root {
-  --bg-deep: #0b1222;
-  --bg-card: rgba(255,255,255,0.06);
-  --border: rgba(255,255,255,0.08);
-  --accent: #d4a843;
-  --accent-soft: rgba(212,168,67,0.15);
-  --text: #f0f0f0;
-  --text-muted: #a8b0c8;
-  --good: #2ecc71;
-  --bad: #e75c5c;
-  --blue: #4a7cf5;
+:root{
+  --bg-deep:#0b1222;--bg-card:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.08);
+  --accent:#d4a843;--accent-soft:rgba(212,168,67,0.15);
+  --text:#f0f0f0;--text-muted:#a8b0c8;
+  --good:#2ecc71;--bad:#e75c5c;--blue:#4a7cf5;--gold:#f6c863;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{
   font-family:'Inter',system-ui,sans-serif;
   background:linear-gradient(160deg,#0b1222 0%,#131d3a 50%,#0b1533 100%);
-  color:var(--text);min-height:100vh;padding:1rem 1.2rem;
-  line-height:1.45;letter-spacing:-0.01em;
+  color:var(--text);min-height:100vh;padding:1rem 1.2rem;line-height:1.45;
 }
-.container{max-width:1080px;margin:0 auto}
-header{padding:2.5rem 0 1.5rem;border-bottom:1px solid var(--border);margin-bottom:2rem}
-header h1{font-family:'DM Serif Display',Georgia,serif;font-size:3rem;color:#f6f3e8;line-height:1.1;letter-spacing:-0.03em;margin-bottom:.2rem}
-header p.subtitle{color:var(--text-muted);font-size:1.05rem}
+.container{max-width:1200px;margin:0 auto}
+header{padding:2.5rem 0 1.5rem;border-bottom:1px solid var(--border);margin-bottom:2rem;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem}
+header h1{font-family:'DM Serif Display',Georgia,serif;font-size:2.8rem;color:#f6f3e8;line-height:1.1;letter-spacing:-0.03em}
+header p.subtitle{color:var(--text-muted);font-size:1rem;margin-top:.2rem}
+header .period{background:var(--accent-soft);border:1px solid var(--accent);border-radius:99px;padding:.4rem .9rem;font-size:.78rem;color:var(--accent);font-weight:600;letter-spacing:.04em}
 
-.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-bottom:2rem}
+.tabs{display:flex;gap:.4rem;margin-bottom:1.5rem;border-bottom:1px solid var(--border);overflow-x:auto}
+.tab{padding:.7rem 1.2rem;background:transparent;border:none;color:var(--text-muted);font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;font-family:inherit;font-size:.9rem;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+.section{display:none}
+.section.active{display:block}
+
+.grid{display:grid;gap:1rem;margin-bottom:2rem}
+.grid-4{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
 .card{
   background:var(--bg-card);backdrop-filter:saturate(140%)blur(14px);
   border:1px solid var(--border);border-radius:18px;padding:1.1rem 1.2rem;
@@ -48,12 +52,13 @@ header p.subtitle{color:var(--text-muted);font-size:1.05rem}
 .card .value.bad{color:var(--bad)}
 .card .label{color:var(--text-muted);font-size:.82rem;margin-top:.25rem}
 
-.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.7rem;margin-bottom:1rem}
-input, select{
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.7rem;margin-bottom:1rem}
+input,select,textarea{
   width:100%;padding:.65rem .8rem;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.04);
   color:var(--text);font-family:inherit;font-size:.92rem;outline:none;transition:border-color .15s;
 }
-input:focus, select:focus{border-color:var(--accent);background:rgba(255,255,255,.07)}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);background:rgba(255,255,255,.07)}
+textarea{min-height:60px;resize:vertical}
 
 button{
   padding:.65rem 1.2rem;border:none;border-radius:10px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;
@@ -62,22 +67,48 @@ button{
 button:hover{filter:brightness(1.08);transform:translateY(-1px)}
 button.secondary{background:rgba(255,255,255,.08);color:#f6f3e8;border:1px solid var(--border)}
 button.secondary:hover{background:rgba(255,255,255,.14)}
+button.danger{background:rgba(231,92,92,.85);color:#fff}
+button.danger:hover{background:rgba(231,92,92,1)}
+button.small{padding:.3rem .7rem;font-size:.78rem}
 
 .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.02)}
-table{width:100%;border-collapse:collapse;font-size:.9rem}
-th{background:rgba(255,255,255,.06);color:var(--text-muted);text-align:left;padding:.7rem .8rem;font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em}
-td{padding:.65rem .8rem;border-top:1px solid var(--border);color:#ddd}
-td.number{text-align:right;font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th{background:rgba(255,255,255,.06);color:var(--text-muted);text-align:left;padding:.7rem .8rem;font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em}
+td{padding:.6rem .8rem;border-top:1px solid var(--border);color:#ddd}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+tr:hover td{background:rgba(255,255,255,.02)}
 
 .alert{padding:1rem 1.2rem;border-radius:12px;margin-bottom:1rem;border-left:4px solid var(--good);background:rgba(46,204,113,.08);color:#a8e6c8}
 .alert.warn{border-color:var(--bad);background:rgba(231,92,92,.08);color:#f5b5b5}
+.alert.info{border-color:var(--blue);background:rgba(74,124,245,.08);color:#b8c8f5}
+
+h2{font-family:'DM Serif Display',serif;font-size:1.6rem;margin:1.5rem 0 .8rem;color:#f6f3e8}
+h3{font-family:'DM Serif Display',serif;font-size:1.2rem;margin:1rem 0 .6rem;color:#f6f3e8}
+
+.week-card,.month-card{
+  background:linear-gradient(135deg,rgba(212,168,67,.08) 0%,rgba(212,168,67,.02) 100%);
+  border:1px solid var(--border);border-radius:14px;padding:1.1rem;margin-bottom:.7rem;
+}
+.week-card.current{border-color:var(--accent);background:linear-gradient(135deg,rgba(212,168,67,.18) 0%,rgba(212,168,67,.06) 100%)}
+.week-card .period-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+.week-card .period-label .name{font-weight:600;color:#f6f3e8}
+.week-card .period-label .dates{color:var(--text-muted);font-size:.82rem}
+.week-card .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:.6rem}
+.week-card .stats div{text-align:center}
+.week-card .stats .label{font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted)}
+.week-card .stats .val{font-family:'DM Serif Display',serif;font-size:1.1rem;color:#f6f3e8}
+
+.tag{display:inline-block;padding:.15rem .55rem;border-radius:99px;font-size:.7rem;font-weight:600;letter-spacing:.04em}
+.tag.good{background:rgba(46,204,113,.15);color:var(--good);border:1px solid rgba(46,204,113,.3)}
+.tag.bad{background:rgba(231,92,92,.15);color:var(--bad);border:1px solid rgba(231,92,92,.3)}
+.tag.gold{background:rgba(212,168,67,.15);color:var(--gold);border:1px solid rgba(212,168,67,.3)}
 
 @media(max-width:640px){
-  header h1{font-size:2.2rem}
+  header h1{font-size:2rem}
   .grid-4{grid-template-columns:1fr}
+  .week-card .stats{grid-template-columns:repeat(2,1fr)}
   body{padding:.8rem .9rem}
 }
-
 footer{margin-top:3rem;padding:1.5rem 0;border-top:1px solid var(--border);color:var(--text-muted);font-size:.82rem;text-align:center}
 footer span{display:inline-block;background:rgba(255,255,255,.06);padding:.25rem .7rem;border-radius:99px;margin-top:.5rem}
 </style>
@@ -85,126 +116,375 @@ footer span{display:inline-block;background:rgba(255,255,255,.06);padding:.25rem
 <body>
 <div class="container">
   <header>
-    <h1>Controlador de Motorista</h1>
-    <p class="subtitle">Uber / 99 — Custos, lucro, metas. Privado, automático, no navegador.</p>
+    <div>
+      <h1>Controlador de Motorista</h1>
+      <p class="subtitle">Uber — Lucro semanal, mensal, custos fixos, reserva de emergência.</p>
+    </div>
+    <div class="period" id="periodChip">📅 Carregando...</div>
   </header>
 
-  <div class="grid-4" id="cards"></div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="dash">📊 Painel</button>
+    <button class="tab" data-tab="day">🚗 Lançar Dia</button>
+    <button class="tab" data-tab="fixed">💼 Custos Fixos</button>
+    <button class="tab" data-tab="weekly">📅 Semanas</button>
+    <button class="tab" data-tab="monthly">📆 Meses</button>
+  </nav>
 
-  <div class="form-row">
-    <input id="date" type="date" />
-    <input id="kmInit" type="number" placeholder="KM inicial" />
-    <input id="kmFinal" type="number" placeholder="KM final" />
-    <input id="uber" type="number" step="0.01" placeholder="Faturamento Uber (R$)" />
-    <input id="pop99" type="number" step="0.01" placeholder="Faturamento 99 (R$)" />
-    <input id="hours" type="number" step="0.1" placeholder="Horas trabalhadas" />
-    <input id="expenses" type="number" step="0.01" placeholder="Despesas do dia (R$)" />
-  </div>
-  <div style="display:flex;gap:.7rem;margin-bottom:1.5rem;flex-wrap:wrap">
-    <button onclick="addDay()">+ Adicionar Dia</button>
-    <button class="secondary" onclick="exportCSV()">📥 Exportar CSV</button>
-    <button class="secondary" onclick="clearAll()">Limpar Tudo</button>
-  </div>
+  <!-- PAINEL -->
+  <section class="section active" id="tab-dash">
+    <div id="dashAlert"></div>
+    <div class="grid grid-4" id="dashCards"></div>
+    <h2>Lucro Real Hoje</h2>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Cálculo do Lucro Real</h3>
+        <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:.7rem">Faturamento − Custos fixos mensais rateados − Despesas do dia</p>
+        <div id="realProfitBreakdown"></div>
+      </div>
+      <div class="card">
+        <h3>Status do Mês</h3>
+        <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:.7rem">Acompanhe se está acima ou abaixo da média necessária</p>
+        <div id="monthStatus"></div>
+      </div>
+    </div>
+  </section>
 
-  <div id="alertBox"></div>
+  <!-- LANÇAR DIA -->
+  <section class="section" id="tab-day">
+    <h2>Lançar Novo Dia</h2>
+    <div class="card">
+      <div class="form-row">
+        <div><label>Data</label><input id="date" type="date" /></div>
+        <div><label>KM inicial</label><input id="kmInit" type="number" placeholder="0" /></div>
+        <div><label>KM final</label><input id="kmFinal" type="number" placeholder="0" /></div>
+        <div><label>Faturamento Uber (R$)</label><input id="revenue" type="number" step="0.01" placeholder="0,00" /></div>
+        <div><label>Horas trabalhadas</label><input id="hours" type="number" step="0.1" placeholder="0,0" /></div>
+        <div><label>Despesas do dia (R$)</label><input id="expenses" type="number" step="0.01" placeholder="0,00" /></div>
+      </div>
+      <div style="display:flex;gap:.7rem;flex-wrap:wrap">
+        <button onclick="addDay()">+ Adicionar Dia</button>
+        <button class="secondary" onclick="exportCSV()">📥 Exportar CSV</button>
+        <button class="secondary danger" onclick="clearAll()">🗑️ Limpar Tudo</button>
+      </div>
+    </div>
+    <h3>Registros Recentes</h3>
+    <div class="table-wrap">
+      <table id="dayTable">
+        <thead><tr><th>Data</th><th>KM</th><th>Uber</th><th>Horas</th><th>Despesas</th><th>Lucro Real</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
 
-  <h2 style="font-family:'DM Serif Display',serif;font-size:1.6rem;margin-bottom:.8rem;color:#f6f3e8">Registros Recentes</h2>
-  <div class="table-wrap">
-    <table id="table"><thead><tr><th>Data</th><th>KM Inicial</th><th>KM Final</th><th>Rodado</th><th>Uber</th><th>99</th><th>Faturamento</th><th>Horas</th><th>Despesas</th><th>Lucro</th><th>Remover</th></tr></thead><tbody></tbody></table>
-  </div>
+  <!-- CUSTOS FIXOS -->
+  <section class="section" id="tab-fixed">
+    <h2>Custos Fixos Mensais (Carro)</h2>
+    <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:1rem">Cadastre todos os custos fixos do seu veículo. Eles serão rateados automaticamente por dia e descontados do seu lucro real.</p>
+    <div class="card">
+      <h3>Adicionar Custo Fixo</h3>
+      <div class="form-row">
+        <div><label>Categoria</label>
+          <select id="fixedCat">
+            <option value="parcela">Parcela / Financiamento</option>
+            <option value="seguro">Seguro</option>
+            <option value="ipva">IPVA</option>
+            <option value="licenciamento">Licenciamento</option>
+            <option value="manutencao">Manutenção preventiva</option>
+            <option value="pneu">Pneus / Alinhamento</option>
+            <option value="oleo">Troca de óleo</option>
+            <option value="refrigeracao">Ar condicionado</option>
+            <option value="celular">Plano celular / Internet</option>
+            <option value="app">Assinatura Uber / 99 (Pro)</option>
+            <option value="reserva">Reserva de emergência</option>
+            <option value="outros">Outros</option>
+          </select>
+        </div>
+        <div><label>Descrição</label><input id="fixedDesc" placeholder="Ex: Parcela do Onix" /></div>
+        <div><label>Valor mensal (R$)</label><input id="fixedAmount" type="number" step="0.01" placeholder="0,00" /></div>
+        <div><label>Observação</label><input id="fixedNotes" placeholder="Opcional" /></div>
+      </div>
+      <button onclick="addFixed()">+ Adicionar Custo Fixo</button>
+    </div>
+
+    <h3>Custos Fixos Cadastrados</h3>
+    <div class="table-wrap">
+      <table id="fixedTable">
+        <thead><tr><th>Categoria</th><th>Descrição</th><th>Valor Mensal</th><th>Por Dia (÷30)</th><th>Obs</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="grid grid-2" style="margin-top:1.5rem">
+      <div class="card">
+        <h3>Total Mensal de Custos Fixos</h3>
+        <div class="value accent" id="totalFixedMonthly">R$ 0,00</div>
+        <div class="label">Custo diário rateado: R$ <span id="totalFixedDaily">0,00</span></div>
+      </div>
+      <div class="card">
+        <h3>Reserva de Emergência</h3>
+        <div class="value" id="reservaTotal" style="color:var(--gold)">R$ 0,00</div>
+        <div class="label">Recomendado: 6× custos fixos = R$ <span id="reservaGoal">0,00</span></div>
+        <div id="reservaProgress" style="margin-top:.5rem;background:rgba(255,255,255,.06);height:8px;border-radius:99px;overflow:hidden">
+          <div id="reservaBar" style="height:100%;background:linear-gradient(90deg,var(--gold),var(--accent));width:0%;transition:width .3s"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEMANAS -->
+  <section class="section" id="tab-weekly">
+    <h2>Histórico Semanal de Lucro</h2>
+    <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:1rem">Semanas do ano atual. A semana atual fica destacada em dourado.</p>
+    <div id="weeksList"></div>
+  </section>
+
+  <!-- MESES -->
+  <section class="section" id="tab-monthly">
+    <h2>Histórico Mensal de Lucro</h2>
+    <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:1rem">Meses do ano atual + meses previstos.</p>
+    <div id="monthsList"></div>
+  </section>
 
   <footer>
     <p>Controlador de Motorista — Dados salvos apenas no navegador (localStorage). Nenhum dado é enviado.</p>
-    <span>Feito com autonomia — Skill-Memorias · Claude Code Architecture</span>
+    <span>Privacidade total · Skill-Memorias · Claude Code Architecture</span>
   </footer>
 </div>
 
 <script>
 // === STORAGE ===
-const KEY='driver_days_v3';
-let DATA=JSON.parse(localStorage.getItem(KEY)||'[]');
+const KEY_DAYS='driver_days_v4';
+const KEY_FIXED='driver_fixed_v1';
+let DAYS=JSON.parse(localStorage.getItem(KEY_DAYS)||'[]');
+let FIXED=JSON.parse(localStorage.getItem(KEY_FIXED)||'[]');
 
-function save(){localStorage.setItem(KEY,JSON.stringify(DATA));}
-function fmt(n){return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
-
-// === CARDS ===
-function buildCards(){
-  const rev=DATA.reduce((s,d)=>s+d.revenueUber+d.revenue99,0);
-  const exp=DATA.reduce((s,d)=>s+d.expenses,0);
-  const profit=rev-exp;
-  const km=DATA.reduce((s,d)=>s+d.kmRodado,0);
-  const hrs=DATA.reduce((s,d)=>s+d.workedHours,0);
-  const days=DATA.length;
-
-  document.getElementById('cards').innerHTML=`
-    <div class="card"><h3>Faturamento Bruto</h3><div class="value">R$ ${fmt(rev)}</div><div class="label">Total acumulado</div></div>
-    <div class="card"><h3>Lucro Líquido</h3><div class="value ${profit>=0?'good':'bad'}">R$ ${fmt(profit)}</div><div class="label">Após custos diários</div></div>
-    <div class="card"><h3>KM Total</h3><div class="value accent">${Math.round(km)} km</div><div class="label">${days?Math.round(km/days):0} km/dia média</div></div>
-    <div class="card"><h3>Lucro / Hora</h3><div class="value">R$ ${hrs?fmt(profit/hrs):'0.00'}</div><div class="label">Média de ${Math.round(hrs||0)}h trabalhadas</div></div>`;
-
-  // Alertas
-  const box=document.getElementById('alertBox');
-  if(profit<0) box.innerHTML=`<div class="alert warn">⚠️ Lucro negativo (R$ ${fmt(profit)}). Revise gastos.</div>`;
-  else if(days>=3 && profit>0) box.innerHTML=`<div class="alert">✅ Lucro positivo: R$ ${fmt(profit)} em ${days} dias.</div>`;
-  else box.innerHTML='';
+function saveDays(){localStorage.setItem(KEY_DAYS,JSON.stringify(DAYS));}
+function saveFixed(){localStorage.setItem(KEY_FIXED,JSON.stringify(FIXED));}
+function fmt(n){return (n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function BRL(n){return 'R$ '+fmt(n);}
+function todayISO(){return new Date().toISOString().split('T')[0];}
+function isoWeek(d){const date=new Date(d);date.setHours(0,0,0,0);date.setDate(date.getDate()+3-((date.getDay()+6)%7));const week1=new Date(date.getFullYear(),0,4);return [date.getFullYear(),1+Math.round(((date-week1)/86400000-3+((week1.getDay()+6)%7))/7)];}
+function weekRange(year,wk){
+  const simple=new Date(year,0,1+(wk-1)*7);
+  const dow=simple.getDay();
+  const ISOweekStart=new Date(simple);
+  if(dow<=4) ISOweekStart.setDate(simple.getDate()-simple.getDay()+1);
+  else ISOweekStart.setDate(simple.getDate()+8-simple.getDay());
+  const end=new Date(ISOweekStart);end.setDate(end.getDate()+6);
+  return [ISOweekStart,end];
 }
+
+// === TABS ===
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('tab-'+t.dataset.tab).classList.add('active');
+  render();
+}));
 
 // === ADD DAY ===
 function addDay(){
-  const d=document.getElementById('date').value||new Date().toISOString().split('T')[0];
+  const d=document.getElementById('date').value||todayISO();
   const init=parseFloat(document.getElementById('kmInit').value)||0;
   const end=parseFloat(document.getElementById('kmFinal').value)||0;
-  const uber=parseFloat(document.getElementById('uber').value)||0;
-  const pop99=parseFloat(document.getElementById('pop99').value)||0;
+  const rev=parseFloat(document.getElementById('revenue').value)||0;
   const hrs=parseFloat(document.getElementById('hours').value)||0;
   const exp=parseFloat(document.getElementById('expenses').value)||0;
-  if(!init||!end||!uber&&!pop99){alert('Preencha KM inicial, final e pelo menos um faturamento.');return;}
-
-  DATA.push({id:Date.now(),date:d,kmInitial:init,kmFinal:end,kmRodado:end-init,revenueUber:uber,revenue99:pop99,revenueTotal:uber+pop99,workedHours:hrs,expenses:exp,notes:''});
-  save();
+  if(!init||!end){alert('Informe KM inicial e final.');return;}
+  if(rev<=0){alert('Informe o faturamento Uber.');return;}
+  DAYS.push({id:Date.now(),date:d,kmInitial:init,kmFinal:end,kmRodado:end-init,revenueUber:rev,workedHours:hrs,expenses:exp,notes:''});
+  saveDays();
+  ['kmInit','kmFinal','revenue','hours','expenses'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('date').value=d;
-  document.getElementById('kmInit').value='';document.getElementById('kmFinal').value='';
-  document.getElementById('uber').value='';document.getElementById('pop99').value='';
-  document.getElementById('hours').value='';document.getElementById('expenses').value='';
   render();
 }
+function delDay(id){DAYS=DAYS.filter(x=>x.id!==id);saveDays();render();}
 
-// === DELETE ===
-function del(id){DATA=DATA.filter(x=>x.id!==id);save();render();}
+// === ADD FIXED ===
+function addFixed(){
+  const cat=document.getElementById('fixedCat').value;
+  const desc=document.getElementById('fixedDesc').value.trim()||cat;
+  const amt=parseFloat(document.getElementById('fixedAmount').value)||0;
+  const notes=document.getElementById('fixedNotes').value.trim();
+  if(amt<=0){alert('Informe um valor válido.');return;}
+  FIXED.push({id:Date.now(),category:cat,description:desc,amount:amt,notes});
+  saveFixed();
+  document.getElementById('fixedDesc').value='';
+  document.getElementById('fixedAmount').value='';
+  document.getElementById('fixedNotes').value='';
+  render();
+}
+function delFixed(id){FIXED=FIXED.filter(x=>x.id!==id);saveFixed();render();}
+
+// === CALCS ===
+function fixedTotalMonthly(){return FIXED.reduce((s,f)=>s+f.amount,0);}
+function fixedTotalDaily(){return fixedTotalMonthly()/30;}
+function daysInPeriod(fromISO,toISO){return DAYS.filter(d=>d.date>=fromISO&&d.date<=toISO);}
+function sumRevenue(arr){return arr.reduce((s,d)=>s+d.revenueUber,0);}
+function sumExpenses(arr){return arr.reduce((s,d)=>s+d.expenses,0);}
+function sumHours(arr){return arr.reduce((s,d)=>s+d.workedHours,0);}
+function sumKm(arr){return arr.reduce((s,d)=>s+d.kmRodado,0);}
+function realProfit(day){
+  return day.revenueUber - day.expenses - fixedTotalDaily();
+}
+
+// === RENDER ===
+function render(){
+  // header period chip
+  const now=new Date();
+  const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  document.getElementById('periodChip').textContent=`📅 ${meses[now.getMonth()]} ${now.getFullYear()}`;
+
+  // DASHBOARD
+  const today=todayISO();
+  const todayRec=DAYS.filter(d=>d.date===today);
+  const todayRevenue=sumRevenue(todayRec);
+  const todayExp=sumExpenses(todayRec);
+  const todayProfit=todayRevenue-todayExp-fixedTotalDaily()*Math.max(todayRec.length,1);
+  const monthStart=today.slice(0,7);
+  const monthRec=DAYS.filter(d=>d.date.startsWith(monthStart));
+  const monthRevenue=sumRevenue(monthRec);
+  const monthExp=sumExpenses(monthRec);
+  const monthFixed=fixedTotalMonthly();
+  const monthProfit=monthRevenue-monthExp-monthFixed;
+
+  // alert
+  let alert='';
+  if(DAYS.length>0){
+    if(monthProfit<0) alert=`<div class="alert warn">⚠️ Mês no vermelho: ${BRL(monthProfit)}. Reduza despesas ou aumente rodagem.</div>`;
+    else if(monthProfit<monthFixed) alert=`<div class="alert info">ℹ️ Lucro do mês (${BRL(monthProfit)}) está abaixo dos custos fixos (${BRL(monthFixed)}). Acelere.</div>`;
+    else alert=`<div class="alert">✅ Mês no azul: ${BRL(monthProfit)} de lucro real. ${monthProfit>monthFixed*2?'Excelente ritmo!':''}</div>`;
+  }
+  document.getElementById('dashAlert').innerHTML=alert;
+
+  document.getElementById('dashCards').innerHTML=`
+    <div class="card"><h3>Faturamento Mês</h3><div class="value accent">${BRL(monthRevenue)}</div><div class="label">${monthRec.length} dias rodados</div></div>
+    <div class="card"><h3>Lucro Real Mês</h3><div class="value ${monthProfit>=0?'good':'bad'}">${BRL(monthProfit)}</div><div class="label">Após custos fixos e despesas</div></div>
+    <div class="card"><h3>Hoje</h3><div class="value">${BRL(todayRevenue)}</div><div class="label">${todayRec.length} lançamentos</div></div>
+    <div class="card"><h3>Custos Fixos</h3><div class="value" style="color:var(--bad)">${BRL(monthFixed)}</div><div class="label">por mês · ${BRL(fixedTotalDaily())}/dia</div></div>`;
+
+  // real profit breakdown
+  document.getElementById('realProfitBreakdown').innerHTML=`
+    <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border)"><span>Faturamento Uber (mês)</span><strong>${BRL(monthRevenue)}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);color:var(--bad)"><span>(−) Custos fixos mensais</span><strong>−${BRL(monthFixed)}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);color:var(--bad)"><span>(−) Despesas do mês</span><strong>−${BRL(monthExp)}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:.6rem 0;font-size:1.1rem"><span><strong>Lucro real do mês</strong></span><strong style="color:${monthProfit>=0?'var(--good)':'var(--bad)'}">${BRL(monthProfit)}</strong></div>`;
+
+  // month status
+  const daysInMonth=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  const daysRemaining=daysInMonth-now.getDate();
+  const avgDaily=monthRec.length?(monthRevenue-monthExp-monthFixed)/monthRec.length:0;
+  const dailyNeed=monthFixed/daysInMonth+avgDaily*0.3;
+  document.getElementById('monthStatus').innerHTML=`
+    <div style="display:flex;justify-content:space-between;padding:.3rem 0"><span>Dia do mês</span><strong>${now.getDate()} de ${daysInMonth}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:.3rem 0"><span>Dias restantes</span><strong>${daysRemaining}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:.3rem 0"><span>Média diária de lucro</span><strong>${BRL(avgDaily)}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:.3rem 0"><span>Meta diária sugerida</span><strong style="color:var(--accent)">${BRL(dailyNeed)}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:.3rem 0;border-top:1px solid var(--border);margin-top:.3rem;padding-top:.5rem"><span>Projeção do mês</span><strong style="color:${avgDaily*daysInMonth>0?'var(--good)':'var(--bad)'}">${BRL(avgDaily*daysInMonth)}</strong></div>`;
+
+  // DAY TABLE
+  const tb=document.querySelector('#dayTable tbody');
+  tb.innerHTML=DAYS.slice().reverse().slice(0,30).map(d=>{
+    const lp=realProfit(d);
+    return `<tr>
+      <td>${d.date}</td>
+      <td class="num">${d.kmRodado} km</td>
+      <td class="num">${BRL(d.revenueUber)}</td>
+      <td class="num">${d.workedHours}h</td>
+      <td class="num">${BRL(d.expenses)}</td>
+      <td class="num" style="color:${lp>=0?'var(--good)':'var(--bad)'}">${BRL(lp)}</td>
+      <td><button class="small danger" onclick="delDay(${d.id})">✕</button></td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:1.5rem">Sem registros. Adicione um dia acima.</td></tr>';
+
+  // FIXED TABLE
+  const fb=document.querySelector('#fixedTable tbody');
+  fb.innerHTML=FIXED.map(f=>`<tr>
+    <td><span class="tag gold">${f.category}</span></td>
+    <td>${f.description}</td>
+    <td class="num">${BRL(f.amount)}</td>
+    <td class="num">${BRL(f.amount/30)}</td>
+    <td style="font-size:.78rem;color:var(--text-muted)">${f.notes||'-'}</td>
+    <td><button class="small danger" onclick="delFixed(${f.id})">✕</button></td>
+  </tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:1.5rem">Nenhum custo fixo cadastrado.</td></tr>';
+
+  document.getElementById('totalFixedMonthly').textContent=BRL(fixedTotalMonthly());
+  document.getElementById('totalFixedDaily').textContent=fmt(fixedTotalDaily());
+  const reserva=FIXED.filter(f=>f.category==='reserva').reduce((s,f)=>s+f.amount,0);
+  const goal=fixedTotalMonthly()*6;
+  document.getElementById('reservaTotal').textContent=BRL(reserva);
+  document.getElementById('reservaGoal').textContent=fmt(goal);
+  document.getElementById('reservaBar').style.width=Math.min(100,(reserva/goal*100)||0)+'%';
+
+  // WEEKS
+  const [yr,curWk]=isoWeek(new Date());
+  const weeks=[];
+  for(let w=1;w<=53;w++){
+    const [start,end]=weekRange(yr,w);
+    if(end<new Date(yr,0,1)) continue;
+    if(start.getFullYear()>yr) break;
+    const rec=DAYS.filter(d=>{const x=new Date(d.date);return x>=start&&x<=end;});
+    if(rec.length===0&&w<curWk) continue; // skip empty past weeks
+    const rev=sumRevenue(rec),exp=sumExpenses(rec),hrs=sumHours(rec),km=sumKm(rec);
+    const profit=rev-exp-fixedTotalDaily()*rec.length;
+    weeks.push({w,start,end,rec:rec.length,rev,exp,hrs,km,profit,current:w===curWk});
+  }
+  document.getElementById('weeksList').innerHTML=weeks.slice().reverse().map(w=>`
+    <div class="week-card ${w.current?'current':''}">
+      <div class="period-label">
+        <span class="name">Semana ${w.w}${w.current?' (atual)':''}</span>
+        <span class="dates">${w.start.toLocaleDateString('pt-BR')} → ${w.end.toLocaleDateString('pt-BR')}</span>
+      </div>
+      <div class="stats">
+        <div><div class="label">Dias</div><div class="val">${w.rec}</div></div>
+        <div><div class="label">Faturamento</div><div class="val">${BRL(w.rev)}</div></div>
+        <div><div class="label">Despesas</div><div class="val">${BRL(w.exp)}</div></div>
+        <div><div class="label">Lucro</div><div class="val" style="color:${w.profit>=0?'var(--good)':'var(--bad)'}">${BRL(w.profit)}</div></div>
+      </div>
+    </div>`).join('')||'<p style="color:var(--text-muted)">Semanas aparecerão aqui conforme você adicionar dias.</p>';
+
+  // MONTHS
+  const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const curMonth=now.getMonth();
+  const monthList=[];
+  for(let m=0;m<12;m++){
+    const key=`${yr}-${String(m+1).padStart(2,'0')}`;
+    const rec=DAYS.filter(d=>d.date.startsWith(key));
+    const rev=sumRevenue(rec),exp=sumExpenses(rec),hrs=sumHours(rec),km=sumKm(rec);
+    const profit=rev-exp-fixedTotalMonthly();
+    monthList.push({m,rec:rec.length,rev,exp,hrs,km,profit,current:m===curMonth,future:m>curMonth});
+  }
+  document.getElementById('monthsList').innerHTML=monthList.map(m=>`
+    <div class="week-card ${m.current?'current':''}" style="${m.future?'opacity:.6':''}">
+      <div class="period-label">
+        <span class="name">${meses[m.m]} ${yr}${m.current?' (atual)':''}${m.future?' (previsão)':''}</span>
+        <span class="tag ${m.profit>=0?'good':'bad'}">${m.profit>=0?'✓':'!'} ${BRL(m.profit)}</span>
+      </div>
+      <div class="stats">
+        <div><div class="label">Dias</div><div class="val">${m.rec}</div></div>
+        <div><div class="label">Faturamento</div><div class="val">${BRL(m.rev)}</div></div>
+        <div><div class="label">Despesas</div><div class="val">${BRL(m.exp)}</div></div>
+        <div><div class="label">Lucro real</div><div class="val" style="color:${m.profit>=0?'var(--good)':'var(--bad)'}">${BRL(m.profit)}</div></div>
+      </div>
+    </div>`).join('');
+}
 
 // === EXPORT ===
 function exportCSV(){
-  const rows=[['Data','KM Init','KM Final','Rodado','Uber','99','Total','Horas','Despesas','Lucro']];
-  DATA.forEach(d=>rows.push([d.date,d.kmInitial,d.kmFinal,d.kmRodado,d.revenueUber,d.revenue99,d.revenueTotal,d.workedHours,d.expenses,fmt(d.revenueTotal-d.expenses)]));
+  const rows=[['Data','KM Inicial','KM Final','Rodado','Uber','Horas','Despesas','Lucro Real']];
+  DAYS.forEach(d=>rows.push([d.date,d.kmInitial,d.kmFinal,d.kmRodado,d.revenueUber,d.workedHours,d.expenses,fmt(realProfit(d))]));
   const csv=rows.map(r=>r.map(c=>String(c).includes(',')?`"${c}"`:c).join(',')).join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='controlador-driver-'+new Date().toISOString().split('T')[0]+'.csv';a.click();URL.revokeObjectURL(url);
+  const a=document.createElement('a');a.href=url;a.download='driver-'+todayISO()+'.csv';a.click();URL.revokeObjectURL(url);
 }
-
-function clearAll(){if(confirm('Apagar todos os registros?')){DATA=[];save();render();}}
-
-function render(){
-  buildCards();
-  const tb=document.querySelector('#table tbody');
-  tb.innerHTML=DATA.slice().reverse().map(d=>`<tr>
-    <td>${d.date}</td>
-    <td class="number">${d.kmInitial}</td>
-    <td class="number">${d.kmFinal}</td>
-    <td class="number">${d.kmRodado}</td>
-    <td class="number">R$ ${fmt(d.revenueUber)}</td>
-    <td class="number">R$ ${fmt(d.revenue99)}</td>
-    <td class="number" style="font-weight:700">R$ ${fmt(d.revenueTotal)}</td>
-    <td class="number">${d.workedHours}h</td>
-    <td class="number">R$ ${fmt(d.expenses)}</td>
-    <td class="number ${(d.revenueTotal-d.expenses)>=0?'good':'bad'}">R$ ${fmt(d.revenueTotal-d.expenses)}</td>
-    <td><button onclick="del(${d.id})" style="padding:.3rem .6rem;background:rgba(231,92,92,.9);color:#fff;border:none;border-radius:6px;font-size:.75rem">✕</button></td>
-  </tr>`).join('')||'<tr><td colspan="11" style="text-align:center;color:var(--text-muted);padding:1.5rem">Nenhum registro ainda. Comece adicionando um dia.</td></tr>';
-}
+function clearAll(){if(confirm('Apagar TUDO (dias + custos fixos)?')){DAYS=[];FIXED=[];saveDays();saveFixed();render();}}
 
 // Init
+document.getElementById('date').value=todayISO();
 render();
-document.getElementById('date').value=new Date().toISOString().split('T')[0];
 </script>
 </body>
 </html>
