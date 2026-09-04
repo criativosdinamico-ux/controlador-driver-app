@@ -1,15 +1,210 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>Controlador de Motorista - Uber/99</title>
-  <meta name="description" content="App pessoal para controle de motorista de aplicativo - custos, lucros, metas" />
-  <link rel="manifest" href="/manifest.json" />
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+<title>Controlador de Motorista — Uber / 99</title>
+<meta name="description" content="Controle privado de motorista de aplicativo. Custos, lucro, metas, histórico — salvo apenas no navegador." />
+<link rel="manifest" href="manifest.json">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=DM+Serif+Display&display=swap');
+
+:root {
+  --bg-deep: #0b1222;
+  --bg-card: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.08);
+  --accent: #d4a843;
+  --accent-soft: rgba(212,168,67,0.15);
+  --text: #f0f0f0;
+  --text-muted: #a8b0c8;
+  --good: #2ecc71;
+  --bad: #e75c5c;
+  --blue: #4a7cf5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:linear-gradient(160deg,#0b1222 0%,#131d3a 50%,#0b1533 100%);
+  color:var(--text);min-height:100vh;padding:1rem 1.2rem;
+  line-height:1.45;letter-spacing:-0.01em;
+}
+.container{max-width:1080px;margin:0 auto}
+header{padding:2.5rem 0 1.5rem;border-bottom:1px solid var(--border);margin-bottom:2rem}
+header h1{font-family:'DM Serif Display',Georgia,serif;font-size:3rem;color:#f6f3e8;line-height:1.1;letter-spacing:-0.03em;margin-bottom:.2rem}
+header p.subtitle{color:var(--text-muted);font-size:1.05rem}
+
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-bottom:2rem}
+.card{
+  background:var(--bg-card);backdrop-filter:saturate(140%)blur(14px);
+  border:1px solid var(--border);border-radius:18px;padding:1.1rem 1.2rem;
+  transition:transform .15s ease, box-shadow .2s ease;
+}
+.card:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(212,168,67,.08)}
+.card h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:.35rem}
+.card .value{font-family:'DM Serif Display',Georgia,serif;font-size:2.2rem;color:#f6f3e8;line-height:1.05}
+.card .value.accent{color:var(--accent)}
+.card .value.good{color:var(--good)}
+.card .value.bad{color:var(--bad)}
+.card .label{color:var(--text-muted);font-size:.82rem;margin-top:.25rem}
+
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.7rem;margin-bottom:1rem}
+input, select{
+  width:100%;padding:.65rem .8rem;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.04);
+  color:var(--text);font-family:inherit;font-size:.92rem;outline:none;transition:border-color .15s;
+}
+input:focus, select:focus{border-color:var(--accent);background:rgba(255,255,255,.07)}
+
+button{
+  padding:.65rem 1.2rem;border:none;border-radius:10px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;
+  background:linear-gradient(135deg,var(--accent) 0%,#c29134 100%);color:#0b1222;
+}
+button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+button.secondary{background:rgba(255,255,255,.08);color:#f6f3e8;border:1px solid var(--border)}
+button.secondary:hover{background:rgba(255,255,255,.14)}
+
+.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.02)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{background:rgba(255,255,255,.06);color:var(--text-muted);text-align:left;padding:.7rem .8rem;font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em}
+td{padding:.65rem .8rem;border-top:1px solid var(--border);color:#ddd}
+td.number{text-align:right;font-variant-numeric:tabular-nums}
+
+.alert{padding:1rem 1.2rem;border-radius:12px;margin-bottom:1rem;border-left:4px solid var(--good);background:rgba(46,204,113,.08);color:#a8e6c8}
+.alert.warn{border-color:var(--bad);background:rgba(231,92,92,.08);color:#f5b5b5}
+
+@media(max-width:640px){
+  header h1{font-size:2.2rem}
+  .grid-4{grid-template-columns:1fr}
+  body{padding:.8rem .9rem}
+}
+
+footer{margin-top:3rem;padding:1.5rem 0;border-top:1px solid var(--border);color:var(--text-muted);font-size:.82rem;text-align:center}
+footer span{display:inline-block;background:rgba(255,255,255,.06);padding:.25rem .7rem;border-radius:99px;margin-top:.5rem}
+</style>
 </head>
-<body class="bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 min-h-screen">
-  <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
+<body>
+<div class="container">
+  <header>
+    <h1>Controlador de Motorista</h1>
+    <p class="subtitle">Uber / 99 — Custos, lucro, metas. Privado, automático, no navegador.</p>
+  </header>
+
+  <div class="grid-4" id="cards"></div>
+
+  <div class="form-row">
+    <input id="date" type="date" />
+    <input id="kmInit" type="number" placeholder="KM inicial" />
+    <input id="kmFinal" type="number" placeholder="KM final" />
+    <input id="uber" type="number" step="0.01" placeholder="Faturamento Uber (R$)" />
+    <input id="pop99" type="number" step="0.01" placeholder="Faturamento 99 (R$)" />
+    <input id="hours" type="number" step="0.1" placeholder="Horas trabalhadas" />
+    <input id="expenses" type="number" step="0.01" placeholder="Despesas do dia (R$)" />
+  </div>
+  <div style="display:flex;gap:.7rem;margin-bottom:1.5rem;flex-wrap:wrap">
+    <button onclick="addDay()">+ Adicionar Dia</button>
+    <button class="secondary" onclick="exportCSV()">📥 Exportar CSV</button>
+    <button class="secondary" onclick="clearAll()">Limpar Tudo</button>
+  </div>
+
+  <div id="alertBox"></div>
+
+  <h2 style="font-family:'DM Serif Display',serif;font-size:1.6rem;margin-bottom:.8rem;color:#f6f3e8">Registros Recentes</h2>
+  <div class="table-wrap">
+    <table id="table"><thead><tr><th>Data</th><th>KM Inicial</th><th>KM Final</th><th>Rodado</th><th>Uber</th><th>99</th><th>Faturamento</th><th>Horas</th><th>Despesas</th><th>Lucro</th><th>Remover</th></tr></thead><tbody></tbody></table>
+  </div>
+
+  <footer>
+    <p>Controlador de Motorista — Dados salvos apenas no navegador (localStorage). Nenhum dado é enviado.</p>
+    <span>Feito com autonomia — Skill-Memorias · Claude Code Architecture</span>
+  </footer>
+</div>
+
+<script>
+// === STORAGE ===
+const KEY='driver_days_v3';
+let DATA=JSON.parse(localStorage.getItem(KEY)||'[]');
+
+function save(){localStorage.setItem(KEY,JSON.stringify(DATA));}
+function fmt(n){return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+// === CARDS ===
+function buildCards(){
+  const rev=DATA.reduce((s,d)=>s+d.revenueUber+d.revenue99,0);
+  const exp=DATA.reduce((s,d)=>s+d.expenses,0);
+  const profit=rev-exp;
+  const km=DATA.reduce((s,d)=>s+d.kmRodado,0);
+  const hrs=DATA.reduce((s,d)=>s+d.workedHours,0);
+  const days=DATA.length;
+
+  document.getElementById('cards').innerHTML=`
+    <div class="card"><h3>Faturamento Bruto</h3><div class="value">R$ ${fmt(rev)}</div><div class="label">Total acumulado</div></div>
+    <div class="card"><h3>Lucro Líquido</h3><div class="value ${profit>=0?'good':'bad'}">R$ ${fmt(profit)}</div><div class="label">Após custos diários</div></div>
+    <div class="card"><h3>KM Total</h3><div class="value accent">${Math.round(km)} km</div><div class="label">${days?Math.round(km/days):0} km/dia média</div></div>
+    <div class="card"><h3>Lucro / Hora</h3><div class="value">R$ ${hrs?fmt(profit/hrs):'0.00'}</div><div class="label">Média de ${Math.round(hrs||0)}h trabalhadas</div></div>`;
+
+  // Alertas
+  const box=document.getElementById('alertBox');
+  if(profit<0) box.innerHTML=`<div class="alert warn">⚠️ Lucro negativo (R$ ${fmt(profit)}). Revise gastos.</div>`;
+  else if(days>=3 && profit>0) box.innerHTML=`<div class="alert">✅ Lucro positivo: R$ ${fmt(profit)} em ${days} dias.</div>`;
+  else box.innerHTML='';
+}
+
+// === ADD DAY ===
+function addDay(){
+  const d=document.getElementById('date').value||new Date().toISOString().split('T')[0];
+  const init=parseFloat(document.getElementById('kmInit').value)||0;
+  const end=parseFloat(document.getElementById('kmFinal').value)||0;
+  const uber=parseFloat(document.getElementById('uber').value)||0;
+  const pop99=parseFloat(document.getElementById('pop99').value)||0;
+  const hrs=parseFloat(document.getElementById('hours').value)||0;
+  const exp=parseFloat(document.getElementById('expenses').value)||0;
+  if(!init||!end||!uber&&!pop99){alert('Preencha KM inicial, final e pelo menos um faturamento.');return;}
+
+  DATA.push({id:Date.now(),date:d,kmInitial:init,kmFinal:end,kmRodado:end-init,revenueUber:uber,revenue99:pop99,revenueTotal:uber+pop99,workedHours:hrs,expenses:exp,notes:''});
+  save();
+  document.getElementById('date').value=d;
+  document.getElementById('kmInit').value='';document.getElementById('kmFinal').value='';
+  document.getElementById('uber').value='';document.getElementById('pop99').value='';
+  document.getElementById('hours').value='';document.getElementById('expenses').value='';
+  render();
+}
+
+// === DELETE ===
+function del(id){DATA=DATA.filter(x=>x.id!==id);save();render();}
+
+// === EXPORT ===
+function exportCSV(){
+  const rows=[['Data','KM Init','KM Final','Rodado','Uber','99','Total','Horas','Despesas','Lucro']];
+  DATA.forEach(d=>rows.push([d.date,d.kmInitial,d.kmFinal,d.kmRodado,d.revenueUber,d.revenue99,d.revenueTotal,d.workedHours,d.expenses,fmt(d.revenueTotal-d.expenses)]));
+  const csv=rows.map(r=>r.map(c=>String(c).includes(',')?`"${c}"`:c).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='controlador-driver-'+new Date().toISOString().split('T')[0]+'.csv';a.click();URL.revokeObjectURL(url);
+}
+
+function clearAll(){if(confirm('Apagar todos os registros?')){DATA=[];save();render();}}
+
+function render(){
+  buildCards();
+  const tb=document.querySelector('#table tbody');
+  tb.innerHTML=DATA.slice().reverse().map(d=>`<tr>
+    <td>${d.date}</td>
+    <td class="number">${d.kmInitial}</td>
+    <td class="number">${d.kmFinal}</td>
+    <td class="number">${d.kmRodado}</td>
+    <td class="number">R$ ${fmt(d.revenueUber)}</td>
+    <td class="number">R$ ${fmt(d.revenue99)}</td>
+    <td class="number" style="font-weight:700">R$ ${fmt(d.revenueTotal)}</td>
+    <td class="number">${d.workedHours}h</td>
+    <td class="number">R$ ${fmt(d.expenses)}</td>
+    <td class="number ${(d.revenueTotal-d.expenses)>=0?'good':'bad'}">R$ ${fmt(d.revenueTotal-d.expenses)}</td>
+    <td><button onclick="del(${d.id})" style="padding:.3rem .6rem;background:rgba(231,92,92,.9);color:#fff;border:none;border-radius:6px;font-size:.75rem">✕</button></td>
+  </tr>`).join('')||'<tr><td colspan="11" style="text-align:center;color:var(--text-muted);padding:1.5rem">Nenhum registro ainda. Comece adicionando um dia.</td></tr>';
+}
+
+// Init
+render();
+document.getElementById('date').value=new Date().toISOString().split('T')[0];
+</script>
 </body>
 </html>
