@@ -54,10 +54,10 @@ footer{margin-top:3rem;padding:1.5rem 0;border-top:1px solid rgba(255,255,255,0.
 </header>
 
 <div class="grid-4">
-  <div class="card"><h3>Faturamento Mês</h3><div class="value">R$ 0,00</div><div class="label">Total acumulado</div></div>
-  <div class="card"><h3>Lucro Real Mês</h3><div class="value good">R$ 0,00</div><div class="label">Após custos fixos</div></div>
-  <div class="card"><h3>KM Total</h3><div class="value">0 km</div><div class="label">Média diária</div></div>
-  <div class="card"><h3>Lucro / Hora</h3><div class="value">R$ 0,00</div><div class="label">Por hora trabalhada</div></div>
+  <div class="card"><h3>Faturamento Mês</h3><div class="value" id="cardRev">R$ 0,00</div><div class="label" id="cardRevLbl">0 dias rodados</div></div>
+  <div class="card"><h3>Lucro Real Mês</h3><div class="value good" id="cardProfit">R$ 0,00</div><div class="label">Após custos fixos</div></div>
+  <div class="card"><h3>KM Total</h3><div class="value" id="cardKm">0 km</div><div class="label" id="cardKmLbl">Média 0 km/dia</div></div>
+  <div class="card"><h3>Lucro / Hora</h3><div class="value" id="cardHourly">R$ 0,00</div><div class="label" id="cardHourlyLbl">0h trabalhadas</div></div>
 </div>
 
 <div class="form-row">
@@ -105,6 +105,7 @@ function addDay(){
   if(!init||!end){alert("Informe KM inicial e final");return;}
   DAYS.push({id:Date.now(),date:d,kmInitial:init,kmFinal:end,kmRodado:Math.max(0,end-init),revenueUber:rev,workedHours:hrs,expenses:exp});
   saveDays();
+  updateCards();
   document.getElementById("kmInit").value="";document.getElementById("kmFinal").value="";
   document.getElementById("revenue").value="";document.getElementById("hours").value="";
   document.getElementById("expenses").value="";document.getElementById("date").value=d;
@@ -133,7 +134,25 @@ function render(){
   document.getElementById("alertBox").innerHTML=profit>=0?`<div class="alert">✅ Lucro real: ${BRL(profit)}</div>`:`<div class="alert warn">⚠️ Lucro negativo: ${BRL(profit)}</div>`;
 }
 document.getElementById("date").value=todayISO();
-try{render();}catch(e){console.error("render error:",e);}
+try{render();updateCards();}catch(e){console.error("init error:",e);}
+function updateCards(){
+  const rev=DAYS.reduce((s,d)=>s+(d.revenueUber||0),0);
+  const exp=DAYS.reduce((s,d)=>s+(d.expenses||0),0);
+  const km=DAYS.reduce((s,d)=>s+(d.kmRodado||0),0);
+  const hrs=DAYS.reduce((s,d)=>s+(d.workedHours||0),0);
+  const days=DAYS.length;
+  const profit=rev-exp;
+  document.getElementById("cardRev").textContent="R$ "+fmt(rev);
+  document.getElementById("cardRevLbl").textContent=days+" dia"+(days>1?"s":"");
+  document.getElementById("cardProfit").textContent="R$ "+fmt(profit);
+  document.getElementById("cardProfit").className="value "+(profit>=0?"good":"");
+  document.getElementById("cardKm").textContent=Math.round(km)+" km";
+  document.getElementById("cardKmLbl").textContent="Média "+(days>0?Math.round(km/days):0)+" km/dia";
+  document.getElementById("cardHourly").textContent="R$ "+fmt(hrs>0?profit/hrs:0);
+  document.getElementById("cardHourlyLbl").textContent=(Math.round(hrs||0))+"h trabalhadas";
+  const box=document.getElementById("alertBox");
+  box.innerHTML=days>0?(profit>=0?`<div class="alert">✅ Lucro real: ${BRL(profit)}</div>`:`<div class="alert warn">⚠️ Prejuízo: ${BRL(profit)}</div>`):`<div class="alert info">💡 Adicione um dia para ver resultados</div>`;
+}
 </script>
 </body>
 </html>
