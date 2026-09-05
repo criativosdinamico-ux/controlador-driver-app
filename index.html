@@ -331,6 +331,7 @@ function realProfit(day){
 }
 
 // === RENDER ===
+function safe(n, idx) { return (Array.isArray(n) ? n[idx]||n[0]||'-' : n) || '-'; }
 function render(){
   // header period chip
   const now=new Date();
@@ -482,9 +483,17 @@ function exportCSV(){
 }
 function clearAll(){if(confirm('Apagar TUDO (dias + custos fixos)?')){DAYS=[];FIXED=[];saveDays();saveFixed();render();}}
 
-// Init
+// Init — chip atualizado imediatamente, antes de qualquer render
+(function initChip(){
+  try{
+    var _m=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    var _d=new Date();
+    var _chip=document.getElementById('periodChip');
+    if(_chip) _chip.textContent='📅 '+(_m[_d.getMonth()]||'---')+' '+_d.getFullYear();
+  }catch(e){console.warn('chip init:',e);}
+})();
 document.getElementById('date').value=todayISO();
-render();
+try{render();}catch(e){console.error('render failed:',e);}
 </script>
 </body>
 </html>
