@@ -111,6 +111,12 @@ h3{font-family:'DM Serif Display',serif;font-size:1.2rem;margin:1rem 0 .6rem;col
 }
 footer{margin-top:3rem;padding:1.5rem 0;border-top:1px solid var(--border);color:var(--text-muted);font-size:.82rem;text-align:center}
 footer span{display:inline-block;background:rgba(255,255,255,.06);padding:.25rem .7rem;border-radius:99px;margin-top:.5rem}
+
+/* CARROSSEL DE CARDS — scroll horizontal nativo + touch */
+.card-carousel { display: flex; gap: 1rem; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; padding-bottom: .5rem; touch-action: pan-x pan-y;
+}
+.card-carousel .card { scroll-snap-align: start; flex-shrink: 0; min-width: 260px; width: 280px; }
+@media (max-width: 640px) { .card-carousel { gap: .7rem; padding-left: .5rem; padding-right: .5rem; } .card-carousel .card { min-width: 240px; width: 260px; } }
 </style>
 </head>
 <body>
@@ -134,7 +140,7 @@ footer span{display:inline-block;background:rgba(255,255,255,.06);padding:.25rem
   <!-- PAINEL -->
   <section class="section active" id="tab-dash">
     <div id="dashAlert"></div>
-    <div class="grid grid-4" id="dashCards">
+    <div class="card-carousel" id="dashCards">
   <div class="card"><h3>Faturamento Mês</h3><div class="value accent">R$ 0,00</div><div class="label">Total acumulado</div></div>
   <div class="card"><h3>Lucro Real Mês</h3><div class="value">R$ 0,00</div><div class="label">Após custos fixos</div></div>
   <div class="card"><h3>KM Total</h3><div class="value">0 km</div><div class="label">Média diária</div></div>
